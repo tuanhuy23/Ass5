@@ -1,21 +1,49 @@
 package Main;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class StudentServiceTest {
-    private StudentService service;
-    private InMemoryStudentRepository repo;
+    private static StudentService service;
+    private static StudentRepository repo;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private static Connection conn;
+
+    @BeforeClass
+    public static void setupOnce() throws Exception {
+        Class.forName("org.h2.Driver");
+        conn = DriverManager.getConnection("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1");
+        Statement stmt = conn.createStatement();
+        stmt.execute("CREATE TABLE Students (\n" +
+                "    id INT PRIMARY KEY AUTO_INCREMENT,\n" +
+                "    name VARCHAR(100) NOT NULL,\n" +
+                "    dob DATE NOT NULL,\n" +
+                "    gender BOOLEAN NOT NULL,\n" +
+                "    averageScore FLOAT NOT NULL CHECK (averageScore >= 0.0 AND averageScore <= 10.0),\n" +
+                "    rating VARCHAR(10) NOT NULL CHECK (rating IN ('Excellent', 'Fair', 'Average'))\n" +
+                ")");
+        repo = new StudentRepository(conn);
+        service = new StudentService(repo);
+    }
+
+    @AfterClass
+    public static void tearDownOnce() throws Exception {
+        conn.close();
+    }
 
     @Before
-    public void setUp() {
-        repo = new InMemoryStudentRepository();
-        service = new StudentService(repo);
+    public void resetData() throws Exception {
+        Statement stmt = conn.createStatement();
+        stmt.execute("DELETE FROM Students");
     }
 
     @Test
