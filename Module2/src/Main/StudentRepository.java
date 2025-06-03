@@ -80,7 +80,8 @@ public class StudentRepository implements IStudentRepository {
     public List<Student> getAll() {
         List<Student> list = new ArrayList<>();
         String sql = "SELECT * FROM Students";
-        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 list.add(new Student(
                         rs.getInt("id"),

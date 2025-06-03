@@ -33,17 +33,16 @@ public class StudentServiceTest {
                 ")");
         repo = new StudentRepository(conn);
         service = new StudentService(repo);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (int i = 1; i <= 10; i++) {
+            service.createStudent(new Student(i, "Student" + i, sdf.parse("2000-01-0" + (i % 9 + 1)), i % 2 == 0, (float) (i % 11), "Excellent"));
+        }
+        service.getAllStudents();
     }
 
     @AfterClass
     public static void tearDownOnce() throws Exception {
         conn.close();
-    }
-
-    @Before
-    public void resetData() throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.execute("DELETE FROM Students");
     }
 
     @Test
